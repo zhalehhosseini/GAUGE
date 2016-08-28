@@ -1,4 +1,4 @@
-function f_k = first_step(U,model,S,H)
+function f_k = first_step(U,model,S,H,R)
 % first step of GAUGE. finding maximum number of inconssistencies which can
 % be resolved
 % INPUTS:
@@ -16,6 +16,7 @@ function f_k = first_step(U,model,S,H)
 %   H: a m*3 matrix with m=number of highly correlated fully coupled reaction pairs. 
 %       in every row, first and second entries are the number of reactions in the pair in model. 
 %       the third entry is the flux ratio of the reactions in the pair 
+%   R: number of reversible reactions in the model
 % note that model.S and U.S should have the same number of rows.
 % common metabolites in model and U should be at the same rows. for
 % metabolites from U(model) which are not present in model(U) rows
@@ -88,7 +89,16 @@ for i=1:size(H,1)
     b_L(2*n_new+4*size(S,1)+i)=0;
 end
 
-
+for i=1:length(R)
+    Ain(end+1,R(i))=1;
+    Ain(end,end+1)=1001;
+    b_U(end+1)=1001-1e-6;
+    b_L(end+1)=a.lb(R(i));
+    Ain(end+1,R(i))=-1;
+    Ain(end,end)=-1001;
+    b_U(end+1)=0;
+    b_L(end+1)=-a.ub(R(i))-1001;
+end
 
 
 Aeq=[Aeq,sparse(size(model.S,1),size(Ain,2)-n_ori-n_new)];

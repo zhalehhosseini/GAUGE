@@ -1,4 +1,4 @@
-function [x_total,f_k1]=alternative_solutions(U,model,S,H,max_obj)
+function [x_total,f_k1]=alternative_solutions(U,model,S,H,R,max_obj)
 
 % calculating alternative solutions for adding reactions to the model
 %INPUTS:
@@ -24,7 +24,7 @@ function [x_total,f_k1]=alternative_solutions(U,model,S,H,max_obj)
 
 x_total=[];
    
-[f_k1, x,c, Ain, x_L, x_U, b_L, b_U,IntVars] = second_step(U,model,S,H,max_obj);
+[f_k1,x,c, Ain,x_L,x_U,Ain,b_L,b_U,IntVars] = second_step(U,model,S,H,R,max_obj);
 x_total(:,1)=x;
        
         f_k=f_k1;
@@ -43,6 +43,17 @@ while abs(f_k-f_k1)<1e-6
                 Ain(q+i-1,size(model.S,2)+size(U.S,2)+j)=-1;
             else
                 Ain(q+i-1,size(model.S,2)+size(U.S,2)+j)=1;
+            end
+        end
+        
+        y=x(end-length(R)+1:end);
+        t= abs(y)<1e-6;y(t)=0;
+        t= abs(y)>0.999999;y(t)=1;
+        for j=1:length(R)
+            if ~y(j)
+                Ain(q+i-1,end-length(R)+j)=-1;
+            else
+                Ain(q+i-1,end-length(R)+j)=1;
             end
         end
         

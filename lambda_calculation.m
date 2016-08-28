@@ -10,13 +10,16 @@ function [A_lambda]=lambda_calculation(A,model)
 A_lambda=A;
 for i=1:size(A_lambda,1)
     new=model;
+    new.lb(new.rev==1)=-1000;
+    new.lb(new.rev==0)=0;
+    new.ub(:)=1000;
     new.lb(A_lambda(i,1))=1;
     new.ub(A_lambda(i,1))=1;
     new.c(:)=0;
     new.c(A_lambda(i,2))=1;
     [sol]=optimizecbmodel(new);
     [sol2]=optimizecbmodel(new,'min');
-    if sol.stat==1 & sol.f==sol2.f
+    if sol.stat==1 & abs(sol.f-sol2.f)<10e-12
         A_lambda(i,3)=1/sol.f;
     else
         new.lb(A_lambda(i,1))=-1;

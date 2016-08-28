@@ -48,6 +48,7 @@ for i=1:length(model.genes)
         model2.lb(deleted_rxns)=0;
         model2.ub(deleted_rxns)=0;
         all_del_rxns=[];
+        m=0;
         for k=1:length(expressed_rxns_2)
             model2.c(:)=0;
             model2.c(expressed_rxns_2(k))=1;
@@ -55,13 +56,14 @@ for i=1:length(model.genes)
             max=sol.f;
             [sol]=optimizeCbModel(model2,'min');
             min=sol.f;
-            if abs(min)<10e-7 && abs(max)<10e-7
-                all_del_rxns=[all_del_rxns;k];
+            if abs(min)>10e-11 || abs(max)>10e-11
+                m=1;
+                break
             end
         end
         
-        expressed_rxns_2(all_del_rxns)=[];
-        if isempty(expressed_rxns_2)
+        
+        if m==0
             GCM(i,j)=1;
         end
     end

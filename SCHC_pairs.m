@@ -16,9 +16,11 @@ function [SC,HC]=SCHC_pairs(model,GCM,PCC,F2C2_solver,PCC_SC,PCC_HC)
 %   HC: highly correlated reaction pairs in the model
 
 F2C2_model=CobraToF2C2(model);
-[FCM,blocked]=F2C2(F2C2_solver,F2C2_model);
+[FCM2,blocked]=F2C2(F2C2_solver,F2C2_model);
 x=[];y=[];GCM=triu(GCM);
 GCM(1:size(GCM,1)+1:size(GCM,1)*size(GCM,1))=0;
+FCM = zeros(length(model.rxns), length(model.rxns));
+FCM(~blocked, ~blocked) = FCM2;
 FCM=triu(FCM);
 FCM(1:size(FCM,1)+1:size(FCM,1)*size(FCM,1))=0;
 HC=[];

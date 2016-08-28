@@ -1,4 +1,4 @@
-function [alternatives,f_max,f_min]=GAUGE(model,PCC,F2C2_Solver,SC_PCC,HC_PCC,U)
+function [alternatives,f_max,f_min]=GAUGE(model,R,PCC,F2C2_Solver,SC_PCC,HC_PCC,U)
 % INPUTS:
 %   model: metabolic model in COBRA format with known gene_reaction
 %       associations in model.rules and model.rxnGeneMat field
@@ -12,6 +12,7 @@ function [alternatives,f_max,f_min]=GAUGE(model,PCC,F2C2_Solver,SC_PCC,HC_PCC,U)
 %       U.S: stoichiometric matrix of the reactions in the database
 %       U.lb: lower bounds of reactions
 %       U.ub: upper bounds of reactions
+%   R: numberof reversible reactions in the model
 % OUTPUTS:
 %   alternatives: all of the alternative solutions. each column shows a
 %       possible solution
@@ -19,8 +20,8 @@ function [alternatives,f_max,f_min]=GAUGE(model,PCC,F2C2_Solver,SC_PCC,HC_PCC,U)
 %   f_max: maximum number of inconsistancies which can be resolved
 
     [SC_lambda,HC_lambda]=SC_HC_calculator(model,PCC,F2C2_Solver,SC_PCC,HC_PCC);
-    f_max = first_step(U,model,SC_lambda,HC_lambda);
-    [alternatives,f_min]=alternative_solutions(U,model,S,H,f_k);
+    f_max = first_step(U,model,SC_lambda,HC_lambda,R);
+    [alternatives,f_min]=alternative_solutions(U,model,S,H,R,f_max);
     
 
 end

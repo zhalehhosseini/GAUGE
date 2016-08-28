@@ -1,4 +1,4 @@
-function [f_k, x, c, Ain, x_L, x_U, b_L, b_U,IntVars] = second_step(U,model,S,H,prev_obj)
+function [f_k, x, c, Ain, x_L, x_U, b_L, b_U,IntVars] = second_step(U,model,S,H,R,prev_obj)
 % second step of GAUGE. finding minimum number of reactions for addition to
 % the model
 % INPUTS:
@@ -16,6 +16,7 @@ function [f_k, x, c, Ain, x_L, x_U, b_L, b_U,IntVars] = second_step(U,model,S,H,
 %   H: a m*3 matrix with m=number of highly correlated fully coupled reaction pairs. 
 %       in every row, first and second entries are the number of reactions in the pair in model. 
 %       the third entry is the flux ratio of the reactions in the pair 
+%   R: number of reversible reactions in the model
 %   prev_obj: objective value of the first step. maximum number of resolved
 %       inconsistencies
 % note that model.S and U.S should have the same number of rows.
@@ -94,7 +95,16 @@ for i=1:size(H,1)
     b_L(2*n_new+4*size(S,1)+i)=0;
 end
 
-
+for i=1:length(R)
+    Ain(end+1,R(i))=1;
+    Ain(end,end+1)=1001;
+    b_U(end+1)=1001-1e-6;
+    b_L(end+1)=a.lb(R(i));
+    Ain(end+1,R(i))=-1;
+    Ain(end,end)=-1001;
+    b_U(end+1)=0;
+    b_L(end+1)=-a.ub(R(i))-1001;
+end
 
 Ain(end+1,n_ori+2*n_new+3*size(S,1)+1:n_ori+2*n_new+4*size(S,1))=1;
 b_U(end+1)=prev_obj; 
